@@ -104,11 +104,14 @@ contract EscrowTest is Test {
         assertEq(escrow.getDailyUsage(mockToken), 0);
 
         vm.mockCall(mockToken, IERC20.transferFrom.selector, abi.encode(true));
-        escrow.send(IERC20(mockToken), address(this), 100_000);
-        assertEq(escrow.getDailyUsage(mockToken), 100_000);
+        escrow.send(IERC20(mockToken), address(this), 50_000);
+        assertEq(escrow.getDailyUsage(mockToken), 50_000);
 
-        escrow.recvCallback(mockToken, address(this), 150_000);
+        escrow.recvCallback(mockToken, address(this), 80_000);
         assertEq(escrow.getDailyUsage(mockToken), 0);
+
+        vm.expectRevert(abi.encodeWithSelector(IRateLimitErrors.RateLimitExceeded.selector, 100_000, 150_000));
+        escrow.recvCallback(mockToken, address(this), 150_000);
     }
 
     /// forge-config: default.fuzz.runs = 256

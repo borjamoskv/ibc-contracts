@@ -89,6 +89,15 @@ abstract contract RateLimitUpgradeable is IRateLimitErrors, IRateLimit, AccessMa
         }
     }
 
+    /// @notice Reverts if a single transfer exceeds the configured daily rate limit,
+    ///         ensuring any subsequent refund can fit once the daily window resets.
+    /// @param token The token address
+    /// @param amount The amount to check against the rate limit
+    function _assertSingleTransferWithinLimit(address token, uint256 amount) internal view {
+        uint256 rateLimit = _getRateLimitStorage()._rateLimits[token];
+        require(rateLimit == 0 || amount <= rateLimit, RateLimitExceeded(rateLimit, amount));
+    }
+
     /// @notice Returns the daily token key for the current timestamp and token
     /// @param token The token address
     /// @return The daily token key

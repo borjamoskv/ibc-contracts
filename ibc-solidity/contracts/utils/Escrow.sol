@@ -49,6 +49,7 @@ contract Escrow is IEscrowErrors, IEscrow, ContextUpgradeable, RateLimitUpgradea
 
     /// @inheritdoc IEscrow
     function recvCallback(address token, address, uint256 amount) external onlyICS20 {
+        _assertSingleTransferWithinLimit(token, amount);
         _reduceDailyUsage(token, amount);
     }
 
